@@ -2,4 +2,3 @@ requests
 lxml
 pandas
 selenium
-apscheduler
