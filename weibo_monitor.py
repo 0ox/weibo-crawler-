@@ -1,11 +1,18 @@
 import requests
-from datetime import datetime, timedelta
 from timeExe import time_exe, time_last_hours
+
+
+def push_notification(key, data):
+    api = "https://sc.ftqq.com/{}.send".format(key)
+    req = requests.post(api, data=data)
+    if req.json()['data']['error'] == 'SUCCESS':
+        print('Push success!')
+    else:
+        print('Push error!!!')
 
 
 def get_weibo(uid):
     url = 'https://m.weibo.cn/api/container/getIndex?'
-    weibos = []
     params = {'containerid': '107603' + str(uid), 'page': 1}
     user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
     headers = {'User-Agent': user_agent, 'Cookie': ''}
@@ -18,21 +25,17 @@ def get_weibo(uid):
             yield weibos
 
 
-def update_msg(key, created_at, content):
+def update_msg(bid, created_at, content):
+    link = BASE_URL + wb_id + '/' + bid
     title = '【重要通知】 XXX 微博有更新，请点击详情查看'
-    content = '发布时间：\n\n> {} \n\n发布内容：\n\n> {}'.format(created_at, content)
-    api = "https://sc.ftqq.com/{}.send".format(key)
+    content = '发布时间：\n\n> {} \n\n发布内容：\n\n> {}\n\n连接:\n\n> {}'.format(created_at, content, link)
+    # api = "https://push.showdoc.com.cn/server/api/push/{}".format(key)
     data = {
         "text": title,
         "desp": content
     }
-    req = requests.post(api, data=data)
-    if req.status_code == 200:
-        print('ok')
+    push_notification(KEY, data)
 
-        
-def push_sum_notification(msg):
-    pass
 
 def error_msg():
     pass
@@ -44,15 +47,17 @@ def is_updated():
     last_update_time = time_exe(last_weibo['mblog']['created_at'])
     last_hours = time_last_hours()
     if last_update_time >= last_hours:
+        bid = last_weibo['mblog']['bid']
         content = last_weibo['mblog']['text']
-        update_msg(KEY, last_update_time, content)
+        update_msg(bid, last_update_time, content)
     else:
-        print('False')
+        print('No update')
 
 
 if __name__ == '__main__':
     # insert your key
-    KEY = ''
+    KEY = '#'
     # insert wb_id you want to monitor
-    wb_id = ''
+    wb_id = '#'
+    BASE_URL = 'https://www.weibo.com/'
     is_updated()
