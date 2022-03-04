@@ -34,7 +34,7 @@ def get_yesterday():
     yesterday = str(today - oneday)
     return yesterday
 
-# formate time object
+# to-do
 def date_format(date):
     if type(date) == str:
         if u'刚刚' in date:
